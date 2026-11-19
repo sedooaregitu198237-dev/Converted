@@ -4,7 +4,7 @@ from telegram import Update, InputFile
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from PIL import Image
 
-TOKEN = os.environ.get("9076518394:AAE147fbS8FNHUnWqftGrPTZG6QNu52robI")
+TOKEN = os.environ.get("")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("ሰላም! 🤖 የፋይዳ ፒዲኤፍ (PDF) ይላኩኝ፤ ቆርጦ ለፕሪንት አዘጋጅቼ እልክልዎታለሁ።")
