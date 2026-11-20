@@ -4,7 +4,7 @@ from telegram import Update, InputFile
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from PIL import Image
 
-TOKEN = os.environ.get("9076518394:AAEuBEUpy5NUdcb1FghsUJ4_UbZzVa_k03s")
+TOKEN = os.environ.get("BOT_TOKEN")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("ሰላም! 🤖 የፋይዳ ፒዲኤፍ (PDF) ይላኩኝ፤ ቆርጦ ለፕሪንት አዘጋጅቼ እልክልዎታለሁ።")
@@ -74,6 +74,8 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await message.reply_text(f"❌ ስህተት ተፈጥሯል: {str(e)}")
 
 def main():
+    if not TOKEN:
+        raise ValueError("BOT_TOKEN environment variable is not set!")
     application = Application.builder().token(TOKEN).build()
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.Document.PDF, handle_document))
