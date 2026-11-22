@@ -22,52 +22,65 @@ DATA_FILE = "bot_stats.json"
 TEXTS = {
     "am": {
         "welcome": "ሰላም ውድ {name}! የፋይዳ ፒዲኤፍ (PDF) ይላኩ፤ ቆርጦ ለፕሪንት ተዘጋጅቶ ይላክልዎታል።",
-        "btn_download": "pdf download",
-        "btn_convert": "pdf converted",
-        "btn_support": "support",
-        "btn_lang": "language",
-        "download_msg": "📄 PDF ለማውረድ ወደዚህ ቦት ይሂዱ፦ @sedoo_pdf_bot",
+        "btn_download": "📥 pdf download",
+        "btn_convert": "🔄 pdf converted",
+        "btn_support": "🆘 support",
+        "btn_lang": "🌐 language",
+        "download_msg": "📥 PDF ለማውረድ ወደዚህ ቦት ይሂዱ፦ @sedoo_pdf_bot",
         "convert_msg": "🔄 ፋይል ለማቀናበር እዚሁ ቦት ላይ የፋይዳ PDF ፋይሉን ይላኩልኝ።",
         "support_msg": "🆘 እርዳታ ከፈለጉ @power_worked ን ያነጋግሩ።",
         "choose_lang": "🌐 እባክዎ የሚፈልጉትን ቋንቋ ይምረጡ፦",
         "lang_set": "✅ ቋንቋ ወደ አማርኛ ተቀይሯል።",
         "only_pdf": "እባክዎ ትክክለኛ የፋይዳ (Fayda) PDF ፋይል ብቻ ይላኩ!",
         "processing": "⏳ ፋይሉ እየተቀነባበረ ነው፣ እባክዎ ትንሽ ይጠብቁ...",
-        "done_count": "✅ በጠቅላላው {count} መታወቂያዎች ለፕሪንት ተዘጋጅተዋል!",
-        "caption": "🖨️ ለፕሪንት ዝግጁ የሆነ መታወቂያ",
+        "multi_note": (
+            "ℹ️ ማሳሰቢያ፦ በአንድ ጊዜ ብዙ መታወቂያዎችን ወይም በተለያየ ጊዜ የተላኩ ፋይሎችን "
+            "በአንድ ወረቀት ላይ በራስ-ሰር የማዋሃድ አገልግሎት በአሁኑ ሰዓት አይደገፍም። "
+            "እያንዳንዱ ገጽ ለየብቻ ተዘጋጅቶ ይላክልዎታል።"
+        ),
+        "done_count": "✅ በጠቅላላው {count} መታወቂያዎች/ገጾች ለፕሪንት ተዘጋጅተዋል!",
+        "caption": "🖨️ ለፕሪንት ዝግጁ የሆነ ፋይል",
         "error": "❌ ስህተት ተፈጥሯል: {err}",
     },
     "om": {
         "welcome": "Akkam jaallatamaa {name}! PDF Fayda ergaa; sirreeffamee maxxansaaf qophaa'ee isiniif ergama.",
-        "btn_download": "pdf download",
-        "btn_convert": "pdf converted",
-        "btn_support": "support",
-        "btn_lang": "language",
-        "download_msg": "📄 PDF buufachuuf gara bot kanaa deemi፦ @sedoo_pdf_bot",
+        "btn_download": "📥 pdf download",
+        "btn_convert": "🔄 pdf converted",
+        "btn_support": "🆘 support",
+        "btn_lang": "🌐 language",
+        "download_msg": "📥 PDF buufachuuf gara bot kanaa deemi፦ @sedoo_pdf_bot",
         "convert_msg": "🔄 Faayila sirreessuuf asuma irratti PDF Fayda ergaa.",
         "support_msg": "🆘 Gargaarsa yoo barbaaddan @power_worked qunnamaa.",
         "choose_lang": "🌐 Afaan barbaaddan filadhaa፦",
         "lang_set": "✅ Afaan gara Afaan Oromootti jijjiirameera.",
         "only_pdf": "Maaloo faayila PDF Fayda sirrii qofa ergaa!",
         "processing": "⏳ Faayilli hojjetamaa jira, xiqqoo eegaa...",
+        "multi_note": (
+            "ℹ️ Hubachiisa፦ Waraqaa tokko irratti waraqaawwan eenyummaa hedduu ykn faayiloota adda addaa "
+            "walitti qabuun dhiyeessuun yeroo ammaa hin danda'amu. Fuulli hunduu kophaa qophaa'ee ergama."
+        ),
         "done_count": "✅ Walumaagalatti {count} maxxansaaf qophaa'eera!",
         "caption": "🖨️ Maxxansaaf qophaa'e",
         "error": "❌ Dogoggorri uumameera: {err}",
     },
     "en": {
         "welcome": "Hello dear {name}! Send your Fayda PDF; it will be cropped and sent ready for print.",
-        "btn_download": "pdf download",
-        "btn_convert": "pdf converted",
-        "btn_support": "support",
-        "btn_lang": "language",
-        "download_msg": "📄 To download PDF, go to this bot: @sedoo_pdf_bot",
+        "btn_download": "📥 pdf download",
+        "btn_convert": "🔄 pdf converted",
+        "btn_support": "🆘 support",
+        "btn_lang": "🌐 language",
+        "download_msg": "📥 To download PDF, go to this bot: @sedoo_pdf_bot",
         "convert_msg": "🔄 To convert a file, send the Fayda PDF right here in this bot.",
         "support_msg": "🆘 For support, contact @power_worked.",
         "choose_lang": "🌐 Please select your preferred language:",
         "lang_set": "✅ Language changed to English.",
         "only_pdf": "Please send a valid Fayda PDF file only!",
         "processing": "⏳ Processing your file, please wait a moment...",
-        "done_count": "✅ Total {count} ID card(s) prepared for print!",
+        "multi_note": (
+            "ℹ️ Notice: Combining multiple ID cards or separately sent files onto a single sheet "
+            "is not currently supported. Each page is prepared and sent individually."
+        ),
+        "done_count": "✅ Total {count} item(s) prepared for print!",
         "caption": "🖨️ Ready for print",
         "error": "❌ An error occurred: {err}",
     },
@@ -161,7 +174,6 @@ def trim_whitespace(img: Image.Image) -> Image.Image:
     rgb = img.convert("RGB")
     bg = Image.new("RGB", rgb.size, (255, 255, 255))
     diff = ImageChops.difference(rgb, bg)
-    # ቀለም ያላቸውን ክፍሎች በደንብ ለመለየት threshold ማስተካከል
     mask = diff.convert("L").point(lambda x: 255 if x > 18 else 0)
     bbox = mask.getbbox()
     if not bbox:
@@ -177,7 +189,6 @@ def build_printable_sheet(page_img: Image.Image) -> Image.Image:
     trimmed = trim_whitespace(page_img)
     w, h = trimmed.size
 
-    # በተለምዶ የፋይዳ ካርድ (ፊት እና ኋላ) ጎን ለጎን ሲቀመጥ ስፋቱ ከቁመቱ ይበልጣል
     if w >= h:
         mid_x = w // 2
         front_card = trim_whitespace(trimmed.crop((0, 0, mid_x, h)))
@@ -194,7 +205,6 @@ def build_printable_sheet(page_img: Image.Image) -> Image.Image:
         sheet.paste(back_card, (pad + front_card.width + gap, pad))
         return sheet
 
-    # በቁመት ከሆነ የላይ እና የታች ክፍሎችን ለይቶ ጎን ለጎን ማቀናበር
     mid_y = h // 2
     top_part = trim_whitespace(trimmed.crop((0, 0, w, mid_y)))
     bot_part = trim_whitespace(trimmed.crop((0, mid_y, w, h)))
@@ -294,13 +304,13 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     touch_user(user, "button", text)
 
-    if text == t["btn_download"] or text == "pdf download":
+    if text in (t["btn_download"], "pdf download"):
         await update.message.reply_text(t["download_msg"], reply_markup=main_keyboard(lang))
-    elif text == t["btn_convert"] or text == "pdf converted":
+    elif text in (t["btn_convert"], "pdf converted"):
         await update.message.reply_text(t["convert_msg"], reply_markup=main_keyboard(lang))
-    elif text == t["btn_support"] or text == "support":
+    elif text in (t["btn_support"], "support"):
         await update.message.reply_text(t["support_msg"], reply_markup=main_keyboard(lang))
-    elif text == t["btn_lang"] or text == "language":
+    elif text in (t["btn_lang"], "language"):
         await update.message.reply_text(t["choose_lang"], reply_markup=LANG_KEYBOARD)
 
 async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -331,6 +341,9 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f for f in os.listdir(".")
             if f.startswith(f"page_{user.id}") and f.endswith(".png")
         ])
+
+        if len(page_files) > 1:
+            await message.reply_text(t["multi_note"])
 
         for idx, p_file in enumerate(page_files, start=1):
             with Image.open(p_file) as base_img:
