@@ -22,10 +22,10 @@ DATA_FILE = "bot_stats.json"
 TEXTS = {
     "am": {
         "welcome": "ሰላም ውድ {name}! የፋይዳ ፒዲኤፍ (PDF) ይላኩ፤ ቆርጦ ለፕሪንት ተዘጋጅቶ ይላክልዎታል።",
-        "btn_download": "📥 pdf download",
-        "btn_convert": "🔄 pdf converted",
-        "btn_support": "🆘 support",
-        "btn_lang": "🌐 language",
+        "btn_download": "📥 ፒዲኤፍ አውርድ",
+        "btn_convert": "🔄 ፒዲኤፍ ቀይር",
+        "btn_support": "🆘 እርዳታ",
+        "btn_lang": "🌐 ቋንቋ",
         "download_msg": "📥 PDF ለማውረድ ወደዚህ ቦት ይሂዱ፦ @sedoo_pdf_bot",
         "convert_msg": "🔄 ፋይል ለማቀናበር እዚሁ ቦት ላይ የፋይዳ PDF ፋይሉን ይላኩልኝ።",
         "support_msg": "🆘 እርዳታ ከፈለጉ @power_worked ን ያነጋግሩ።",
@@ -39,15 +39,15 @@ TEXTS = {
             "እያንዳንዱ ገጽ ለየብቻ ተዘጋጅቶ ይላክልዎታል።"
         ),
         "done_count": "✅ በጠቅላላው {count} መታወቂያዎች/ገጾች ለፕሪንት ተዘጋጅተዋል!",
-        "caption": "🖨️ ለፕሪንት ዝግጁ የሆነ ፋይል",
+        "caption": "🖨️ ለፕሪንት ዝግጁ የሆነ መታወቂያ",
         "error": "❌ ስህተት ተፈጥሯል: {err}",
     },
     "om": {
         "welcome": "Akkam jaallatamaa {name}! PDF Fayda ergaa; sirreeffamee maxxansaaf qophaa'ee isiniif ergama.",
-        "btn_download": "📥 pdf download",
-        "btn_convert": "🔄 pdf converted",
-        "btn_support": "🆘 support",
-        "btn_lang": "🌐 language",
+        "btn_download": "📥 PDF buufadhu",
+        "btn_convert": "🔄 PDF sirreessi",
+        "btn_support": "🆘 Gargaarsa",
+        "btn_lang": "🌐 Afaan",
         "download_msg": "📥 PDF buufachuuf gara bot kanaa deemi፦ @sedoo_pdf_bot",
         "convert_msg": "🔄 Faayila sirreessuuf asuma irratti PDF Fayda ergaa.",
         "support_msg": "🆘 Gargaarsa yoo barbaaddan @power_worked qunnamaa.",
@@ -91,6 +91,11 @@ LANG_LABELS = {
     "Afan Oromo": "om",
     "English": "en",
 }
+
+DOWNLOAD_TRIGGERS = {v["btn_download"] for v in TEXTS.values()} | {"pdf download"}
+CONVERT_TRIGGERS = {v["btn_convert"] for v in TEXTS.values()} | {"pdf converted"}
+SUPPORT_TRIGGERS = {v["btn_support"] for v in TEXTS.values()} | {"support"}
+LANG_TRIGGERS = {v["btn_lang"] for v in TEXTS.values()} | {"language"}
 
 def load_stats() -> dict:
     if os.path.exists(DATA_FILE):
@@ -170,15 +175,15 @@ LANG_KEYBOARD = ReplyKeyboardMarkup(
     resize_keyboard=True,
 )
 
-def trim_whitespace(img: Image.Image) -> Image.Image:
+def trim_whitespace(img: Image.Image, tol: int = 22) -> Image.Image:
     rgb = img.convert("RGB")
     bg = Image.new("RGB", rgb.size, (255, 255, 255))
     diff = ImageChops.difference(rgb, bg)
-    mask = diff.convert("L").point(lambda x: 255 if x > 18 else 0)
+    mask = diff.convert("L").point(lambda x: 255 if x > tol else 0)
     bbox = mask.getbbox()
     if not bbox:
         return rgb
-    pad = 10
+    pad = 8
     left = max(0, bbox[0] - pad)
     top = max(0, bbox[1] - pad)
     right = min(rgb.width, bbox[2] + pad)
@@ -186,38 +191,42 @@ def trim_whitespace(img: Image.Image) -> Image.Image:
     return rgb.crop((left, top, right, bottom))
 
 def build_printable_sheet(page_img: Image.Image) -> Image.Image:
+    """
+    የፊት እና የኋላ መታወቂያ ክፍሎችን ለይቶ እንደ ምስሉ ጎን ለጎን (Side-by-Side)
+    በንጹህ ነጭ ገጽ ላይ ለህትመት ዝግጁ ያደርጋል።
+    """
     trimmed = trim_whitespace(page_img)
     w, h = trimmed.size
 
-    if w >= h:
-        mid_x = w // 2
-        front_card = trim_whitespace(trimmed.crop((0, 0, mid_x, h)))
-        back_card = trim_whitespace(trimmed.crop((mid_x, 0, w, h)))
+    mid_x = w // 2
+    front_part = trim_whitespace(trimmed.crop((0, 0, mid_x, h)))
+    back_part = trim_whitespace(trimmed.crop((mid_x, 0, w, h)))
 
-        gap = max(24, int(w * 0.02))
-        pad = max(24, int(h * 0.04))
+    if front_part.width > 40 and front_part.height > 40 and back_part.width > 40 and back_part.height > 40:
+        gap = max(28, int(w * 0.025))
+        pad = max(32, int(h * 0.05))
 
-        out_w = front_card.width + back_card.width + gap + (pad * 2)
-        out_h = max(front_card.height, back_card.height) + (pad * 2)
+        target_h = max(front_part.height, back_part.height)
+        front_resized = front_part.resize(
+            (max(1, int(front_part.width * (target_h / front_part.height))), target_h),
+            Image.Resampling.LANCZOS,
+        )
+        back_resized = back_part.resize(
+            (max(1, int(back_part.width * (target_h / back_part.height))), target_h),
+            Image.Resampling.LANCZOS,
+        )
+
+        out_w = front_resized.width + back_resized.width + gap + (pad * 2)
+        out_h = target_h + (pad * 2)
 
         sheet = Image.new("RGB", (out_w, out_h), (255, 255, 255))
-        sheet.paste(front_card, (pad, pad))
-        sheet.paste(back_card, (pad + front_card.width + gap, pad))
+        sheet.paste(front_resized, (pad, pad))
+        sheet.paste(back_resized, (pad + front_resized.width + gap, pad))
         return sheet
 
-    mid_y = h // 2
-    top_part = trim_whitespace(trimmed.crop((0, 0, w, mid_y)))
-    bot_part = trim_whitespace(trimmed.crop((0, mid_y, w, h)))
-
-    gap = max(24, int(w * 0.03))
-    pad = max(24, int(w * 0.03))
-
-    out_w = top_part.width + bot_part.width + gap + (pad * 2)
-    out_h = max(top_part.height, bot_part.height) + (pad * 2)
-
-    sheet = Image.new("RGB", (out_w, out_h), (255, 255, 255))
-    sheet.paste(top_part, (pad, pad))
-    sheet.paste(bot_part, (pad + top_part.width + gap, pad))
+    pad = 32
+    sheet = Image.new("RGB", (w + pad * 2, h + pad * 2), (255, 255, 255))
+    sheet.paste(trimmed, (pad, pad))
     return sheet
 
 class HealthHandler(BaseHTTPRequestHandler):
@@ -304,13 +313,13 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     touch_user(user, "button", text)
 
-    if text in (t["btn_download"], "pdf download"):
+    if text in DOWNLOAD_TRIGGERS:
         await update.message.reply_text(t["download_msg"], reply_markup=main_keyboard(lang))
-    elif text in (t["btn_convert"], "pdf converted"):
+    elif text in CONVERT_TRIGGERS:
         await update.message.reply_text(t["convert_msg"], reply_markup=main_keyboard(lang))
-    elif text in (t["btn_support"], "support"):
+    elif text in SUPPORT_TRIGGERS:
         await update.message.reply_text(t["support_msg"], reply_markup=main_keyboard(lang))
-    elif text in (t["btn_lang"], "language"):
+    elif text in LANG_TRIGGERS:
         await update.message.reply_text(t["choose_lang"], reply_markup=LANG_KEYBOARD)
 
 async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
