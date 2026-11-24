@@ -4,8 +4,15 @@ import subprocess
 import threading
 from datetime import datetime
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from telegram import Update, InputFile, ReplyKeyboardMarkup
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from telegram import Update, InputFile, ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    MessageHandler,
+    CallbackQueryHandler,
+    filters,
+    ContextTypes,
+)
 from PIL import Image, ImageChops
 
 TOKEN = os.environ.get("BOT_TOKEN")
@@ -17,6 +24,7 @@ ADMIN_IDS = {
 }
 
 DATA_FILE = "bot_stats.json"
+QUICK_ADD_POINTS = 1  # የደንበኛውን ቁልፍ ሲነኩ የሚጨመር የፖይንት መጠን
 
 TEMPLATES = [
     ("T1 C", "T1 W"),
@@ -293,6 +301,26 @@ def batch_keyboard(user_id: int) -> ReplyKeyboardMarkup:
         resize_keyboard=True,
     )
 
+def build_users_inline_keyboard(users_dict: dict, limit: int = 20) -> InlineKeyboardMarkup:
+    sorted_users = sorted(
+        users_dict.values(),
+        key=lambda u: u.get("last_seen", ""),
+        reverse=True,
+    )[:limit]
+
+    keyboard = []
+    for u in sorted_users:
+        uid = u.get("id")
+        if uid is None:
+            continue
+        uname = (u.get("first_name") or "User").strip()
+        pts = u.get("points", 0)
+        label = f"➕{QUICK_ADD_POINTS} | {uname} ({uid}) • {pts}pt"
+        keyboard.append([
+            InlineKeyboardButton(text=label[:64], callback_data=f"addpt:{uid}:{QUICK_ADD_POINTS}")
+        ])
+    return InlineKeyboardMarkup(keyboard)
+
 def trim_whitespace(img: Image.Image, tol: int = 24) -> Image.Image:
     rgb = img.convert("RGB")
     bg = Image.new("RGB", rgb.size, (255, 255, 255))
@@ -301,7 +329,7 @@ def trim_whitespace(img: Image.Image, tol: int = 24) -> Image.Image:
     bbox = mask.getbbox()
     if not bbox:
         return rgb
-    pad = 16
+    pad = 14
     left = max(0, bbox[0] - pad)
     top = max(0, bbox[1] - pad)
     right = min(rgb.width, bbox[2] + pad)
@@ -309,16 +337,56 @@ def trim_whitespace(img: Image.Image, tol: int = 24) -> Image.Image:
     return rgb.crop((left, top, right, bottom))
 
 def build_printable_sheet(page_img: Image.Image, template: str = "T1 C", mirror: bool = False) -> Image.Image:
-    trimmed = trim_whitespace(page_img)
+    rgb = page_img.convert("RGB")
+    w, h = rgb.size
+
+    if w < h:
+        right_start_x = int(w * 0.54)
+        right_end_x = int(w * 0.95)
+
+        top_card_box = (right_start_x, int(h * 0.28), right_end_x, int(h * 0.49))
+        bottom_card_box = (right_start_x, int(h * 0.50), right_end_x, int(h * 0.71))
+
+        card_top = trim_whitespace(rgb.crop(top_card_box))
+        card_bottom = trim_whitespace(rgb.crop(bottom_card_box))
+
+        if card_top.width > 80 and card_top.height > 60 and card_bottom.width > 80 and card_bottom.height > 60:
+            if mirror:
+                card_top = card_top.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+                card_bottom = card_bottom.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+
+            gap = 36
+            pad = 48
+            target_h = max(card_top.height, card_bottom.height)
+
+            top_resized = card_top.resize(
+                (max(1, int(card_top.width * (target_h / card_top.height))), target_h),
+                Image.Resampling.LANCZOS,
+            )
+            bottom_resized = card_bottom.resize(
+                (max(1, int(card_bottom.width * (target_h / card_bottom.height))), target_h),
+                Image.Resampling.LANCZOS,
+            )
+
+            is_white_bg = template.endswith("W")
+            bg_color = (255, 255, 255) if is_white_bg else (245, 248, 245)
+
+            out_w = top_resized.width + bottom_resized.width + gap + (pad * 2)
+            out_h = target_h + (pad * 2)
+
+            sheet = Image.new("RGB", (out_w, out_h), bg_color)
+            sheet.paste(top_resized, (pad, pad))
+            sheet.paste(bottom_resized, (pad + top_resized.width + gap, pad))
+            return sheet
+
+    trimmed = trim_whitespace(rgb)
     if mirror:
         trimmed = trimmed.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
-
-    w, h = trimmed.size
+    tw, th = trimmed.size
+    pad = max(32, int(min(tw, th) * 0.04))
     is_white_bg = template.endswith("W")
     bg_color = (255, 255, 255) if is_white_bg else (245, 248, 245)
-    pad = max(32, int(min(w, h) * 0.04))
-
-    sheet = Image.new("RGB", (w + pad * 2, h + pad * 2), bg_color)
+    sheet = Image.new("RGB", (tw + pad * 2, th + pad * 2), bg_color)
     sheet.paste(trimmed, (pad, pad))
     return sheet
 
@@ -347,6 +415,84 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         t["welcome"].format(name=name),
         reply_markup=main_keyboard(user.id),
     )
+
+async def users_panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """ቦቱን የሚጠቀሙ ደንበኞችን ዝርዝር ያሳያል፤ ቁልፉን ሲነኩ ፖይንት ይጨምራል።"""
+    user = update.effective_user
+    if not user or user.id not in ADMIN_IDS:
+        await update.message.reply_text("⛔ ይህ ትዕዛዝ ለአድሚን ብቻ ነው።")
+        return
+
+    data = load_stats()
+    users = data.get("users", {})
+    if not users:
+        await update.message.reply_text("ℹ️ እስካሁን የተመዘገበ ደንበኛ የለም።")
+        return
+
+    lines = [
+        "👥 **የደንበኞች ዝርዝር (ፖይንት ለመጨመር የደንበኛውን ቁልፍ ይንኩ)**",
+        f"ጠቅላላ ደንበኞች፦ **{len(users)}** | በአንድ ንክኪ የሚጨመር፦ **+{QUICK_ADD_POINTS}**",
+        "",
+    ]
+
+    sorted_users = sorted(
+        users.values(),
+        key=lambda u: u.get("last_seen", ""),
+        reverse=True,
+    )[:20]
+
+    for u in sorted_users:
+        uname = u.get("first_name") or "User"
+        handle = f" {u['username']}" if u.get("username") else ""
+        lines.append(
+            f"• `{u.get('id')}` — {uname}{handle} | ፖይንት: **{u.get('points', 0)}**"
+        )
+
+    await update.message.reply_text(
+        "\n".join(lines),
+        parse_mode="Markdown",
+        reply_markup=build_users_inline_keyboard(users, limit=20),
+    )
+
+async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    if not query:
+        return
+
+    admin_user = query.from_user
+    if not admin_user or admin_user.id not in ADMIN_IDS:
+        await query.answer("⛔ ለአድሚን ብቻ ነው።", show_alert=True)
+        return
+
+    data_str = query.data or ""
+    if data_str.startswith("addpt:"):
+        parts = data_str.split(":")
+        if len(parts) == 3 and parts[1].isdigit():
+            target_id = int(parts[1])
+            try:
+                delta = int(parts[2])
+            except ValueError:
+                delta = QUICK_ADD_POINTS
+
+            stats = load_stats()
+            rec = ensure_user_record(stats, target_id)
+            new_pts = max(0, rec.get("points", 0) + delta)
+            rec["points"] = new_pts
+            save_stats(stats)
+            touch_user(admin_user, "tap_add_points", f"{target_id} ({delta:+d} -> {new_pts})")
+
+            uname = rec.get("first_name") or str(target_id)
+            await query.answer(
+                f"✅ {uname} ({target_id}): +{delta} ፖይንት ተጨምሯል! ቀሪ፦ {new_pts}",
+                show_alert=False,
+            )
+
+            try:
+                await query.edit_message_reply_markup(
+                    reply_markup=build_users_inline_keyboard(stats.get("users", {}), limit=20)
+                )
+            except Exception:
+                pass
 
 async def add_points_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
@@ -392,7 +538,8 @@ async def admin_panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "🛡️ **ADMIN PANEL**",
         f"👥 ጠቅላላ ተጠቃሚዎች: {len(users)}",
         f"📄 የተቀነባበሩ PDF ፋይሎች: {data.get('total_pdfs', 0)}",
-        "ፖይንት ለመጨመር፦ `/addpoints <user_id> <amount>`",
+        "• ደንበኞችን ለማየት እና በንክኪ ፖይንት ለመጨመር፦ `/users`",
+        "• ብዙ ፖይንት ለመጨመር፦ `/addpoints <user_id> <amount>`",
         "",
         "👤 **ደንበኞች (የቅርብ ጊዜ 15):**",
     ]
@@ -415,7 +562,11 @@ async def admin_panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     for item in reversed(logs):
         lines.append(f"• `{item.get('user_id')}`: {item.get('action')} {item.get('detail')}")
 
-    await update.message.reply_text("\n".join(lines), parse_mode="Markdown")
+    await update.message.reply_text(
+        "\n".join(lines),
+        parse_mode="Markdown",
+        reply_markup=build_users_inline_keyboard(users, limit=10) if users else None,
+    )
 
 async def process_pdf_list(update: Update, context: ContextTypes.DEFAULT_TYPE, pdf_paths: list[str]):
     user = update.effective_user
@@ -623,7 +774,9 @@ def main():
     application = Application.builder().token(TOKEN).build()
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("admin", admin_panel))
+    application.add_handler(CommandHandler("users", users_panel))
     application.add_handler(CommandHandler("addpoints", add_points_cmd))
+    application.add_handler(CallbackQueryHandler(handle_callback))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
     application.add_handler(MessageHandler(filters.Document.PDF, handle_document))
 
