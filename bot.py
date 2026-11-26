@@ -24,7 +24,10 @@ ADMIN_IDS = {
 }
 
 DATA_FILE = "bot_stats.json"
-QUICK_ADD_POINTS = 1  # የደንበኛውን ቁልፍ ሲነኩ የሚጨመር የፖይንት መጠን
+QUICK_ADD_POINTS = 1
+
+A4_WIDTH_PX = 2480
+A4_HEIGHT_PX = 3508
 
 TEMPLATES = [
     ("T1 C", "T1 W"),
@@ -60,10 +63,10 @@ TEXTS = {
         ),
         "templates_intro": "🖼️ የሚገኙ የመታወቂያ ቴምፕሌቶች፦",
         "choose_template": "ለመታወቂያው የሚጠቀሙትን ቴምፕሌት ይንኩ፦",
-        "template_set": "✅ ቴምፕሌት **{tpl}** ተመርጧል። መታወቂያዎቹ አሁን ይህን ይጠቀማሉ።",
+        "template_set": "✅ ቴምፕሌት **{tpl}** ተመርጧል።",
         "settings_msg": "⚙️ የአሁኑ ቅንብር፦ ቴምፕሌት **{tpl}** | ቀለም **{color}** | መስታወት **{mirror}**",
         "color_msg": "🎨 ቀለም ወደ ጥርት ያለ የህትመት ጥራት (300 DPI) ተስተካክሏል።",
-        "mirror_msg": "🔄 የመስታወት/አቀማመጥ ሁኔታ ተቀይሯል።",
+        "mirror_msg": "🔄 የመስታወት ሁኔታ ተቀይሯል።",
         "only_pdf": "እባክዎ ትክክለኛ የፋይዳ (Fayda) PDF ፋይል ብቻ ይላኩ!",
         "no_points": (
             "❌ **ፖይንት አይበቃም**\n\n"
@@ -72,16 +75,13 @@ TEXTS = {
             "💰 ፖይንት ግዛ ይጫኑ።"
         ),
         "batch_added": (
-            "📥 ፒዲኤፍ(PDF) ተከ metadata ተይዟል (ድምር: **{count}**/100)\n"
+            "📥 ፒዲኤፍ(PDF) ተይዟል (ድምር: **{count}**/100)\n"
             "ተጨማሪ ፋይል ይላኩ፤ ወይም ሲጨርሱ **✅ ጨርሻለሁ** ን ይጫኑ።"
         ),
         "batch_cleared": "🗑️ የተከማቹ PDF ፋይሎች ተሰርዘዋል።",
         "batch_empty": "⚠️ ምንም የተከማቸ PDF ፋይል የለም። በመጀመሪያ PDF ይላኩ።",
         "processing": "⏳ ፋይሉ እየተቀነባበረ ነው፣ እባክዎ ትንሽ ይጠብቁ...",
-        "multi_note": (
-            "ℹ️ ማሳሰቢያ፦ በአንድ ጊዜ ብዙ መታወቂያዎችን ወይም የተለያዩ ፋይሎችን በአንድ ወረቀት ላይ "
-            "በራስ-ሰር የማዋሃድ አገልግሎት ውሱንነት ሊኖረው ይችላል። እያንዳንዱ ገጽ ለፕሪንት ተዘጋጅቶ ይላካል።"
-        ),
+        "multi_note": "ℹ️ ማሳሰቢያ፦ እያንዳንዱ ገጽ ለፕሪንት ተዘጋጅቶ ይላካል።",
         "done_count": "✅ በጠቅላላው **{count}** ገጽ/ፋይል ለፕሪንት ተዘጋጅቷል! ቀሪ ፖይንት፦ **{pts}**",
         "caption": "🖨️ ለፕሪንት ዝግጁ ({tpl})",
         "error": "❌ ስህተት ተፈጥሯል: {err}",
@@ -97,41 +97,29 @@ TEXTS = {
         "btn_done": "✅ Xumureera",
         "btn_cancel": "❌ Haqi",
         "btn_back": "⬅️ Back",
-        "welcome": "Akkam {name}! PDF Fayda qopheessuuf qophiidha. Teempileetii filadhaa ykn PDF ergaa.",
+        "welcome": "Akkam {name}! PDF Fayda qopheessuuf qophiidha.",
         "choose_lang": "🌐 Afaan filadhaa፦",
         "lang_set": "✅ Afaan gara Afaan Oromootti jijjiirameera!",
         "buy_points": (
             "💰 Pooyintii ammaa፦ **{pts}**\n"
-            "• 1 Pooyintii = Hojii PDF 1\n"
             "• Pooyintii bitachuuf @power_worked qunnamaa fi User ID keessan (`{uid}`) ergaa."
         ),
-        "templates_intro": "🖼️ Teempileetota waraqaa eenyummaa፦",
-        "choose_template": "Teempileetii fayyadamtan filadhaa፦",
+        "templates_intro": "🖼️ Teempileetota፦",
+        "choose_template": "Teempileetii filadhaa፦",
         "template_set": "✅ Teempileetiin **{tpl}** filatameera.",
-        "settings_msg": "⚙️ Qindaa'ina ammaa፦ Teempileetii **{tpl}** | Halluu **{color}** | Daawitii **{mirror}**",
+        "settings_msg": "⚙️ Teempileetii **{tpl}** | Halluu **{color}** | Daawitii **{mirror}**",
         "color_msg": "🎨 Halluu fi qulqullinni maxxansaa (300 DPI) sirreeffameera.",
         "mirror_msg": "🔄 Haalli daawitii jijjiirameera.",
-        "only_pdf": "Maaloo faayila PDF Fayda qofa ergaa!",
-        "no_points": (
-            "❌ **Pooyintiin hin ga'u**\n\n"
-            "PDF buufachuuf yoo xiqqaate pooyintii 1 barbaachisa.\n"
-            "Kan hafe፦ **{pts} Pooyintii**\n\n"
-            "💰 Pooyintii Biti cuqaasaa."
-        ),
-        "batch_added": (
-            "📥 PDF kuufameera (Ida'ama: **{count}**/100)\n"
-            "Faayila dabalataa ergaa; yoo xumurtan **✅ Xumureera** cuqaasaa."
-        ),
-        "batch_cleared": "🗑️ Faayiloonni PDF kuufaman haqamaniiru.",
-        "batch_empty": "⚠️ Faayilli PDF kuufame hin jiru. Dura PDF ergaa.",
-        "processing": "⏳ Faayilli hojjetamaa jira, xiqqoo eegaa...",
-        "multi_note": (
-            "ℹ️ Hubachiisa፦ Waraqaa tokko irratti walitti makuun daangaa qabaachuu danda'a. "
-            "Fuulli hunduu maxxansaaf qophaa'ee ergama."
-        ),
-        "done_count": "✅ Walumaagalatti fuulli/faayilli **{count}** qophaa'eera! Pooyintii hafe፦ **{pts}**",
+        "only_pdf": "Maaloo faayila PDF qofa ergaa!",
+        "no_points": "❌ **Pooyintiin hin ga'u** — Kan hafe፦ **{pts} Pooyintii**",
+        "batch_added": "📥 PDF kuufameera (Ida'ama: **{count}**/100). **✅ Xumureera** cuqaasaa.",
+        "batch_cleared": "🗑️ Faayiloonni PDF haqamaniiru.",
+        "batch_empty": "⚠️ Faayilli PDF kuufame hin jiru.",
+        "processing": "⏳ Faayilli hojjetamaa jira...",
+        "multi_note": "ℹ️ Fuulli hunduu maxxansaaf qophaa'ee ergama.",
+        "done_count": "✅ Walumaagalatti **{count}** qophaa'eera! Pooyintii hafe፦ **{pts}**",
         "caption": "🖨️ Maxxansaaf qophaa'e ({tpl})",
-        "error": "❌ Dogoggorri uumameera: {err}",
+        "error": "❌ Dogoggora: {err}",
     },
     "en": {
         "btn_start": "🚀 Start",
@@ -144,39 +132,27 @@ TEXTS = {
         "btn_done": "✅ Done",
         "btn_cancel": "❌ Cancel",
         "btn_back": "⬅️ Back",
-        "welcome": "Hello {name}! Ready to convert Fayda PDFs. Choose a template or send PDF files.",
+        "welcome": "Hello {name}! Ready to convert Fayda PDFs.",
         "choose_lang": "🌐 Select your language:",
         "lang_set": "✅ Language changed to English!",
         "buy_points": (
             "💰 Current points: **{pts}**\n"
-            "• 1 Point = 1 PDF processing job\n"
             "• To buy points, contact @power_worked and send your User ID (`{uid}`)."
         ),
-        "templates_intro": "🖼️ Available ID templates:",
-        "choose_template": "Choose the template to use for your IDs፦",
+        "templates_intro": "🖼️ Available templates:",
+        "choose_template": "Choose a template፦",
         "template_set": "✅ Template **{tpl}** selected.",
-        "settings_msg": "⚙️ Current settings: Template **{tpl}** | Color **{color}** | Mirror **{mirror}**",
-        "color_msg": "🎨 Print color & quality (300 DPI) updated.",
+        "settings_msg": "⚙️ Template **{tpl}** | Color **{color}** | Mirror **{mirror}**",
+        "color_msg": "🎨 Print quality (300 DPI) updated.",
         "mirror_msg": "🔄 Mirror mode toggled.",
-        "only_pdf": "Please send a valid Fayda PDF file only!",
-        "no_points": (
-            "❌ **Insufficient Points**\n\n"
-            "At least 1 point is required to process/download PDF.\n"
-            "Remaining: **{pts} Point(s)**\n\n"
-            "💰 Tap Buy Points."
-        ),
-        "batch_added": (
-            "📥 PDF queued (Total: **{count}**/100)\n"
-            "Send more PDFs, or tap **✅ Done** when finished."
-        ),
+        "only_pdf": "Please send a valid PDF file only!",
+        "no_points": "❌ **Insufficient Points** — Remaining: **{pts} Point(s)**",
+        "batch_added": "📥 PDF queued (Total: **{count}**/100). Tap **✅ Done** when finished.",
         "batch_cleared": "🗑️ Queued PDF files cleared.",
-        "batch_empty": "⚠️ No queued PDF files. Send a PDF first.",
+        "batch_empty": "⚠️ No queued PDF files.",
         "processing": "⏳ Processing your file(s), please wait...",
-        "multi_note": (
-            "ℹ️ Notice: Combining multiple IDs onto one sheet may have layout limits. "
-            "Each page is prepared for print and sent."
-        ),
-        "done_count": "✅ Total **{count}** page(s) ready for print! Remaining points: **{pts}**",
+        "multi_note": "ℹ️ Each page is prepared for print and sent.",
+        "done_count": "✅ Total **{count}** page(s) ready! Remaining points: **{pts}**",
         "caption": "🖨️ Ready for print ({tpl})",
         "error": "❌ Error: {err}",
     },
@@ -329,66 +305,68 @@ def trim_whitespace(img: Image.Image, tol: int = 24) -> Image.Image:
     bbox = mask.getbbox()
     if not bbox:
         return rgb
-    pad = 14
+    pad = 12
     left = max(0, bbox[0] - pad)
     top = max(0, bbox[1] - pad)
     right = min(rgb.width, bbox[2] + pad)
     bottom = min(rgb.height, bbox[3] + pad)
     return rgb.crop((left, top, right, bottom))
 
+def fit_onto_a4(content_img: Image.Image, bg_color: tuple[int, int, int]) -> Image.Image:
+    sheet = Image.new("RGB", (A4_WIDTH_PX, A4_HEIGHT_PX), bg_color)
+    margin = 120
+    max_w = A4_WIDTH_PX - margin * 2
+    max_h = A4_HEIGHT_PX - margin * 2
+    cw, ch = content_img.size
+    if cw <= 0 or ch <= 0:
+        return sheet
+    scale = min(max_w / cw, max_h / ch)
+    nw = max(1, int(cw * scale))
+    nh = max(1, int(ch * scale))
+    resized = content_img.resize((nw, nh), Image.Resampling.LANCZOS)
+    px = (A4_WIDTH_PX - nw) // 2
+    py = (A4_HEIGHT_PX - nh) // 2
+    sheet.paste(resized, (px, py))
+    return sheet
+
 def build_printable_sheet(page_img: Image.Image, template: str = "T1 C", mirror: bool = False) -> Image.Image:
     rgb = page_img.convert("RGB")
     w, h = rgb.size
+    is_white_bg = template.endswith("W")
+    bg_color = (255, 255, 255) if is_white_bg else (245, 248, 245)
 
+    # የፋይዳ PDF ገጽ የቀኝ ክፍል ላይ ያሉትን ሁለት የካርድ ክልሎች መሞከር
     if w < h:
-        right_start_x = int(w * 0.54)
-        right_end_x = int(w * 0.95)
+        right_start_x = int(w * 0.56)
+        right_end_x = int(w * 0.94)
 
-        top_card_box = (right_start_x, int(h * 0.28), right_end_x, int(h * 0.49))
-        bottom_card_box = (right_start_x, int(h * 0.50), right_end_x, int(h * 0.71))
+        box1 = (right_start_x, int(h * 0.17), right_end_x, int(h * 0.42))
+        box2 = (right_start_x, int(h * 0.43), right_end_x, int(h * 0.68))
 
-        card_top = trim_whitespace(rgb.crop(top_card_box))
-        card_bottom = trim_whitespace(rgb.crop(bottom_card_box))
+        c1 = trim_whitespace(rgb.crop(box1))
+        c2 = trim_whitespace(rgb.crop(box2))
 
-        if card_top.width > 80 and card_top.height > 60 and card_bottom.width > 80 and card_bottom.height > 60:
+        # ሁለቱም ክልሎች ትክክለኛ ይዘት ካላቸው ጎን ለጎን በ A4 ላይ ማስቀመጥ
+        if c1.width > 180 and c1.height > 120 and c2.width > 180 and c2.height > 120:
             if mirror:
-                card_top = card_top.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
-                card_bottom = card_bottom.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+                c1 = c1.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+                c2 = c2.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
 
-            gap = 36
-            pad = 48
-            target_h = max(card_top.height, card_bottom.height)
+            gap = 60
+            target_h = max(c1.height, c2.height)
+            r1 = c1.resize((max(1, int(c1.width * (target_h / c1.height))), target_h), Image.Resampling.LANCZOS)
+            r2 = c2.resize((max(1, int(c2.width * (target_h / c2.height))), target_h), Image.Resampling.LANCZOS)
 
-            top_resized = card_top.resize(
-                (max(1, int(card_top.width * (target_h / card_top.height))), target_h),
-                Image.Resampling.LANCZOS,
-            )
-            bottom_resized = card_bottom.resize(
-                (max(1, int(card_bottom.width * (target_h / card_bottom.height))), target_h),
-                Image.Resampling.LANCZOS,
-            )
+            combined = Image.new("RGB", (r1.width + r2.width + gap, target_h), bg_color)
+            combined.paste(r1, (0, 0))
+            combined.paste(r2, (r1.width + gap, 0))
+            return fit_onto_a4(combined, bg_color)
 
-            is_white_bg = template.endswith("W")
-            bg_color = (255, 255, 255) if is_white_bg else (245, 248, 245)
-
-            out_w = top_resized.width + bottom_resized.width + gap + (pad * 2)
-            out_h = target_h + (pad * 2)
-
-            sheet = Image.new("RGB", (out_w, out_h), bg_color)
-            sheet.paste(top_resized, (pad, pad))
-            sheet.paste(bottom_resized, (pad + top_resized.width + gap, pad))
-            return sheet
-
+    # ካርዶቹ በዚያ ልኬት ካልተገኙ ሙሉ ገጹን በንጽህና በ A4 ላይ ማስቀመጥ
     trimmed = trim_whitespace(rgb)
     if mirror:
         trimmed = trimmed.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
-    tw, th = trimmed.size
-    pad = max(32, int(min(tw, th) * 0.04))
-    is_white_bg = template.endswith("W")
-    bg_color = (255, 255, 255) if is_white_bg else (245, 248, 245)
-    sheet = Image.new("RGB", (tw + pad * 2, th + pad * 2), bg_color)
-    sheet.paste(trimmed, (pad, pad))
-    return sheet
+    return fit_onto_a4(trimmed, bg_color)
 
 class HealthHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -417,7 +395,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 async def users_panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """ቦቱን የሚጠቀሙ ደንበኞችን ዝርዝር ያሳያል፤ ቁልፉን ሲነኩ ፖይንት ይጨምራል።"""
     user = update.effective_user
     if not user or user.id not in ADMIN_IDS:
         await update.message.reply_text("⛔ ይህ ትዕዛዝ ለአድሚን ብቻ ነው።")
@@ -430,8 +407,8 @@ async def users_panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     lines = [
-        "👥 **የደንበኞች ዝርዝር (ፖይንት ለመጨመር የደንበኛውን ቁልፍ ይንኩ)**",
-        f"ጠቅላላ ደንበኞች፦ **{len(users)}** | በአንድ ንክኪ የሚጨመር፦ **+{QUICK_ADD_POINTS}**",
+        "👥 **የደንበኞች ዝርዝር (ፖይንት ለመጨመር ቁልፉን ይንኩ)**",
+        f"ጠቅላላ ደንበኞች፦ **{len(users)}** | በአንድ ንክኪ፦ **+{QUICK_ADD_POINTS}**",
         "",
     ]
 
@@ -444,9 +421,7 @@ async def users_panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     for u in sorted_users:
         uname = u.get("first_name") or "User"
         handle = f" {u['username']}" if u.get("username") else ""
-        lines.append(
-            f"• `{u.get('id')}` — {uname}{handle} | ፖይንት: **{u.get('points', 0)}**"
-        )
+        lines.append(f"• `{u.get('id')}` — {uname}{handle} | ፖይንት: **{u.get('points', 0)}**")
 
     await update.message.reply_text(
         "\n".join(lines),
@@ -482,10 +457,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             touch_user(admin_user, "tap_add_points", f"{target_id} ({delta:+d} -> {new_pts})")
 
             uname = rec.get("first_name") or str(target_id)
-            await query.answer(
-                f"✅ {uname} ({target_id}): +{delta} ፖይንት ተጨምሯል! ቀሪ፦ {new_pts}",
-                show_alert=False,
-            )
+            await query.answer(f"✅ {uname}: +{delta} ፖይንት ተጨምሯል! ቀሪ፦ {new_pts}", show_alert=False)
 
             try:
                 await query.edit_message_reply_markup(
@@ -520,7 +492,7 @@ async def add_points_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     touch_user(user, "add_points", f"{target_id} ({delta:+d} -> {new_pts})")
 
     await update.message.reply_text(
-        f"✅ ለተጠቃሚ `{target_id}` ፖይንት ተቀይሯል ({delta:+d})። አሁን ያለው ቀሪ፦ **{new_pts}**",
+        f"✅ ለተጠቃሚ `{target_id}` ፖይንት ተቀይሯል ({delta:+d})። ቀሪ፦ **{new_pts}**",
         parse_mode="Markdown",
     )
 
@@ -538,10 +510,10 @@ async def admin_panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "🛡️ **ADMIN PANEL**",
         f"👥 ጠቅላላ ተጠቃሚዎች: {len(users)}",
         f"📄 የተቀነባበሩ PDF ፋይሎች: {data.get('total_pdfs', 0)}",
-        "• ደንበኞችን ለማየት እና በንክኪ ፖይንት ለመጨመር፦ `/users`",
-        "• ብዙ ፖይንት ለመጨመር፦ `/addpoints <user_id> <amount>`",
+        "• ደንበኞች፦ `/users`",
+        "• ፖይንት መጨመር፦ `/addpoints <user_id> <amount>`",
         "",
-        "👤 **ደንበኞች (የቅርብ ጊዜ 15):**",
+        "👤 **ደንበኞች:**",
     ]
 
     sorted_users = sorted(
@@ -554,11 +526,11 @@ async def admin_panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
         uname = u.get("first_name") or "User"
         handle = f" {u['username']}" if u.get("username") else ""
         lines.append(
-            f"• `{u.get('id')}` — {uname}{handle} | ፖይንት: `{u.get('points', 0)}` | ቋንቋ: `{u.get('lang', 'am')}` | ቴምፕሌት: `{u.get('template', 'T1 C')}`"
+            f"• `{u.get('id')}` — {uname}{handle} | ፖይንት: `{u.get('points', 0)}` | ቴምፕሌት: `{u.get('template', 'T1 C')}`"
         )
 
     lines.append("")
-    lines.append("🧾 **የቅርብ ጊዜ እንቅስቃሴዎች:**")
+    lines.append("🧾 **እንቅስቃሴዎች:**")
     for item in reversed(logs):
         lines.append(f"• `{item.get('user_id')}`: {item.get('action')} {item.get('detail')}")
 
